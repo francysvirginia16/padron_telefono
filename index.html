@@ -101,8 +101,8 @@ table.res th.stk, table.res td.stk{position:sticky;z-index:2;background:var(--s1
 table.res tr.tot td.stk{background:var(--s3)}
 table.res tbody tr:hover td.stk{background:var(--dim)}
 table.res thead th.stk{background:var(--s2);z-index:3}
-table.res th.stk1,table.res td.stk1{left:0;min-width:130px;max-width:130px;white-space:nowrap}
-table.res th.stk2,table.res td.stk2{left:130px;min-width:80px;max-width:80px;box-shadow:2px 0 4px rgba(0,0,0,.07)}
+table.res th.stk1,table.res td.stk1{left:0;min-width:100px;max-width:100px;white-space:nowrap}
+table.res th.stk2,table.res td.stk2{left:100px;min-width:60px;max-width:60px;box-shadow:2px 0 4px rgba(0,0,0,.07)}
 </style>
 </head>
 <body>
@@ -485,11 +485,11 @@ function renderProveedor(rows){
   });
 
   html+=`<div class="sec-label" style="margin-top:14px">Distribución por Entidad — Móviles y Fijos por Proveedor</div>
-  <div class="tbl-wrap"><table class="res"><thead>
+  <div class="tbl-wrap"><table class="res" style="width:auto;min-width:100%"><thead>
     <tr>
       <th class="tl stk stk1" rowspan="2" style="vertical-align:middle">Proveedor</th>
       <th class="stk stk2" rowspan="2" style="vertical-align:middle">Total</th>
-      ${ents.map(e=>`<th class="grp" colspan="2" style="text-align:center;border-bottom:1px solid var(--bd)">${e}</th>`).join('')}
+      ${ents.map(e=>`<th class="grp" colspan="2" style="text-align:center;border-bottom:1px solid var(--bd);min-width:${ents.length<=3?'180px':'120px'}">${e}</th>`).join('')}
     </tr>
     <tr>
       ${ents.map(()=>`<th class="grp" style="color:var(--movil);font-size:9px">MÓV</th><th style="color:var(--fijo);font-size:9px">FIJ</th>`).join('')}
