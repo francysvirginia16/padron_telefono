@@ -109,6 +109,10 @@ table.res thead tr:last-child th{border-bottom:2px solid var(--bd);padding-top:3
       <div class="topbar-title">Padrón de Teléfonos</div>
       <span class="badge" id="mBadge" style="background:rgba(139,28,42,.1);color:var(--burdo)"></span>
       <span class="topbar-sub" id="mSub"></span>
+      <span id="csv-update" style="margin-left:auto;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        —
+      </span>
     </div>
     <div class="kpi-row">
       <div class="kpi b"><div class="kpi-l">Casos c/ Teléfono</div><div class="kpi-v" id="kv-casos">—</div><div class="kpi-s">casos activos</div></div>
@@ -633,12 +637,38 @@ function exportXLSX(){
   XLSX.utils.book_append_sheet(wb,ws,'Padrón Teléfonos');
   XLSX.writeFile(wb,'padron_telefonos.xlsx');
 }
-// ── INICIO: cargar CSV y arrancar ─────────────────────────────────────────────
+// ── INICIO: cargar CSV + fecha último commit ──────────────────────────────────
+const GH_USER = 'francysvirginia16';
+const GH_REPO = 'padron_telefono';
+const GH_FILE = 'telefonos.csv';
+
 document.getElementById('cnt').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:14px">⏳ Cargando datos...</div>';
 
-fetch('telefonos.csv')
+function fmtFechaArg(isoStr){
+  const d=new Date(isoStr);
+  const dd=String(d.getDate()).padStart(2,'0');
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const yyyy=d.getFullYear();
+  const hh=String(d.getHours()).padStart(2,'0');
+  const mi=String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
+}
+
+// Buscar fecha del último commit del CSV via GitHub API
+fetch(`https://api.github.com/repos/${GH_USER}/${GH_REPO}/commits?path=${GH_FILE}&per_page=1`)
+  .then(r=>r.ok?r.json():null)
+  .then(commits=>{
+    if(commits&&commits.length>0){
+      const isoDate=commits[0].commit.committer.date;
+      document.getElementById('csv-update').textContent='Actualización: ' + fmtFechaArg(isoDate);
+    }
+  })
+  .catch(()=>{}); // silencioso si falla
+
+// Cargar el CSV
+fetch(GH_FILE)
   .then(r=>{
-    if(!r.ok) throw new Error('HTTP ' + r.status + ' — no se pudo cargar telefonos.csv');
+    if(!r.ok) throw new Error('HTTP ' + r.status + ' — no se pudo cargar ' + GH_FILE);
     return r.text();
   })
   .then(text=>{ initWithData(parseCSV(text)); })
