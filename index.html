@@ -138,34 +138,6 @@ table.res thead tr:last-child th{border-bottom:2px solid var(--bd);padding-top:3
   </div>
 </div>
 <script>
-// Lee el CSV desde archivo externo (GitHub Pages)
-let allRows=[], ENTS=[], TRAMOS=[], PROVS=[];
-let activeEnts=new Set(), activeTramos=new Set(), activeProvs=new Set(), activeTipos=new Set(['MOVIL','FIJO']);
-let curVista='entidad';
-
-// Mostrar estado de carga
-document.getElementById('cnt').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:14px">Cargando datos...</div>';
-
-const CSV_URL = 'telefonos.csv'; // mismo directorio que el HTML
-
-fetch(CSV_URL)
-  .then(r => {
-    if(!r.ok) throw new Error('No se pudo cargar ' + CSV_URL + ' — Status: ' + r.status);
-    return r.text();
-  })
-  .then(text => {
-    const parsed = parseCSV(text);
-    initWithData(parsed);
-  })
-  .catch(err => {
-    document.getElementById('cnt').innerHTML = `<div style="padding:40px;text-align:center">
-      <div style="color:var(--red);font-size:14px;font-weight:600;margin-bottom:8px">⚠ Error al cargar el CSV</div>
-      <div style="color:var(--muted);font-size:12px">${err.message}</div>
-      <div style="color:var(--muted);font-size:11px;margin-top:8px">Asegurate de que <b>telefonos.csv</b> esté en el mismo directorio que este HTML.</div>
-    </div>`;
-  });
-
-
 const TRAMO_ORDER=['1) 0 a 30 dias','2) 31 a 60 dias','3) 61 a 90 dias','4) 91 a 180 dias','5) 181 a 360 dias','6) Mayor a 360 dias'];
 const TRAMO_ABBR={'1) 0 a 30 dias':'0-30d','2) 31 a 60 dias':'31-60d','3) 61 a 90 dias':'61-90d','4) 91 a 180 dias':'91-180d','5) 181 a 360 dias':'181-360d','6) Mayor a 360 dias':'>360d'};
 const PROV_COLORS={claro:'#f59e0b',movistar:'#0ea5e9',personal:'#22c55e',telecom:'#3b82f6',telefonica:'#6366f1',telecentro:'#ef4444','Sin proveedor':'#94a3b8'};
@@ -661,7 +633,22 @@ function exportXLSX(){
   XLSX.utils.book_append_sheet(wb,ws,'Padrón Teléfonos');
   XLSX.writeFile(wb,'padron_telefonos.xlsx');
 }
+// ── INICIO: cargar CSV y arrancar ─────────────────────────────────────────────
+document.getElementById('cnt').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);font-size:14px">⏳ Cargando datos...</div>';
 
+fetch('telefonos.csv')
+  .then(r=>{
+    if(!r.ok) throw new Error('HTTP ' + r.status + ' — no se pudo cargar telefonos.csv');
+    return r.text();
+  })
+  .then(text=>{ initWithData(parseCSV(text)); })
+  .catch(err=>{
+    document.getElementById('cnt').innerHTML=`<div style="padding:40px;text-align:center">
+      <div style="color:var(--red);font-size:14px;font-weight:600;margin-bottom:8px">⚠ Error al cargar el CSV</div>
+      <div style="color:var(--muted);font-size:12px">${err.message}</div>
+      <div style="color:var(--muted);font-size:11px;margin-top:10px">Verificá que <b>telefonos.csv</b> esté en el mismo directorio que el HTML en el repositorio de GitHub.</div>
+    </div>`;
+  });
 </script>
 </body>
 </html>
